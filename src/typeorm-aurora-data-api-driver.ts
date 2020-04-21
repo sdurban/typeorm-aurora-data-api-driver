@@ -13,19 +13,20 @@ class DataApiDriver {
     private readonly database: string,
     private readonly loggerFn: (query: string, parameters?: any[]) => void = () => undefined,
     private readonly queryTransformer: QueryTransformer,
+    private readonly serviceConfigOptions?: any,
   ) {
     this.region = region
     this.secretArn = secretArn
     this.resourceArn = resourceArn
     this.database = database
     this.loggerFn = loggerFn
+    this.serviceConfigOptions = serviceConfigOptions || {}
+    this.serviceConfigOptions.region = region
     this.client = createDataApiClient({
       secretArn,
       resourceArn,
       database,
-      options: {
-        region,
-      },
+      options: this.serviceConfigOptions,
     })
     this.queryTransformer = queryTransformer
   }
@@ -61,15 +62,15 @@ class DataApiDriver {
 }
 
 const createMysqlDriver = (region: string, secretArn: string, resourceArn: string, database: string,
-                           loggerFn: (query: string, parameters?: any[]) => void = () => undefined) => {
-  return new DataApiDriver(region, secretArn, resourceArn, database, loggerFn, new MysqlQueryTransformer())
+                           loggerFn: (query: string, parameters?: any[]) => void = () => undefined, serviceConfigOptions?: any) => {
+  return new DataApiDriver(region, secretArn, resourceArn, database, loggerFn, new MysqlQueryTransformer(), serviceConfigOptions)
 }
 
 export default createMysqlDriver
 
 const createPostgresDriver = (region: string, secretArn: string, resourceArn: string, database: string,
-                           loggerFn: (query: string, parameters?: any[]) => void = () => undefined) => {
-  return new DataApiDriver(region, secretArn, resourceArn, database, loggerFn, new PostgresQueryTransformer())
+                           loggerFn: (query: string, parameters?: any[]) => void = () => undefined, serviceConfigOptions?: any) => {
+  return new DataApiDriver(region, secretArn, resourceArn, database, loggerFn, new PostgresQueryTransformer(), serviceConfigOptions)
 }
 
 export const pg = createPostgresDriver
